@@ -8,20 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 )
 
-func NewCustomCredentials(accessKeyID, secretAccessKey string) aws.CredentialsProvider {
-	return aws.NewCredentialsCache(aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
-		creds := aws.Credentials{
-			AccessKeyID:     accessKeyID,
-			SecretAccessKey: secretAccessKey,
-			Source:          "Environment",
-		}
-		if creds.AccessKeyID == "" || creds.SecretAccessKey == "" {
-			return aws.Credentials{}, fmt.Errorf("credenciais AWS ausentes nas variáveis de ambiente")
-		}
-		return creds, nil
-	}))
-}
-
 func NewCustomConfig(ctx context.Context, region, address, accessKeyID, secretAccessKey string) (aws.Config, error) {
 	cfg, err := config.LoadDefaultConfig(ctx,
 		config.WithRegion(region),
@@ -34,4 +20,18 @@ func NewCustomConfig(ctx context.Context, region, address, accessKeyID, secretAc
 	}
 
 	return cfg, nil
+}
+
+func NewCustomCredentials(accessKeyID, secretAccessKey string) aws.CredentialsProvider {
+	return aws.NewCredentialsCache(aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
+		creds := aws.Credentials{
+			AccessKeyID:     accessKeyID,
+			SecretAccessKey: secretAccessKey,
+			Source:          "Environment",
+		}
+		if creds.AccessKeyID == "" || creds.SecretAccessKey == "" {
+			return aws.Credentials{}, fmt.Errorf("credenciais AWS ausentes nas variáveis de ambiente")
+		}
+		return creds, nil
+	}))
 }
