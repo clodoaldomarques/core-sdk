@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/clodoaldomarques/core-sdk/pkg/logger"
 	"github.com/labstack/echo/v4"
 )
 
@@ -46,7 +45,7 @@ func InterceptorWithConfig(cfg InterceptorConfig) echo.MiddlewareFunc {
 			if cfg.LogRequestBody && (req.Method == http.MethodPost || req.Method == http.MethodPut || req.Method == http.MethodPatch) {
 				bodyBytes, err := readBodyWithLimit(req.Body, cfg.MaxBodySize)
 				if err != nil {
-					logger.Error(ctx, "failed to read request body", logger.Fields{"error": err.Error()})
+					Error(ctx, "failed to read request body", Fields{"error": err.Error()})
 				} else {
 					reqBody = string(bodyBytes)
 					// Restaura o body para o próximo handler
@@ -55,7 +54,7 @@ func InterceptorWithConfig(cfg InterceptorConfig) echo.MiddlewareFunc {
 			}
 
 			// 2. Prepara campos comuns do log
-			fields := logger.Fields{
+			fields := Fields{
 				"method": req.Method,
 				"path":   c.Path(),
 				"remote": c.RealIP(),
@@ -75,7 +74,7 @@ func InterceptorWithConfig(cfg InterceptorConfig) echo.MiddlewareFunc {
 				fields["path_params"] = c.ParamValues()
 			}
 
-			logger.Info(ctx, "incoming request", fields)
+			Info(ctx, "incoming request", fields)
 
 			// 3. Capturar resposta (se configurado)
 			var resBody bytes.Buffer
@@ -94,7 +93,7 @@ func InterceptorWithConfig(cfg InterceptorConfig) echo.MiddlewareFunc {
 			// 5. Coletar dados da resposta
 			duration := time.Since(start)
 			status := c.Response().Status
-			logFields := logger.Fields{
+			logFields := Fields{
 				"status":      status,
 				"duration_ms": duration.Milliseconds(),
 			}
@@ -107,12 +106,12 @@ func InterceptorWithConfig(cfg InterceptorConfig) echo.MiddlewareFunc {
 			// 6. Log do resultado final
 			if err != nil {
 				logFields["error"] = err.Error()
-				logger.Error(ctx, "request failed", logFields)
+				Error(ctx, "request failed", logFields)
 			} else {
 				if status >= 400 {
-					logger.Warn(ctx, "request completed with client error", logFields)
+					Warn(ctx, "request completed with client error", logFields)
 				} else {
-					logger.Info(ctx, "request completed successfully", logFields)
+					Info(ctx, "request completed successfully", logFields)
 				}
 			}
 
