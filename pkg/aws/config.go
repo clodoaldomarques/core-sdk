@@ -8,11 +8,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 )
 
-func NewCustomConfig(ctx context.Context, region, address, accessKeyID, secretAccessKey string) (aws.Config, error) {
+func NewCustomConfig(ctx context.Context, c Config) (aws.Config, error) {
 	cfg, err := config.LoadDefaultConfig(ctx,
-		config.WithRegion(region),
-		config.WithBaseEndpoint(address),
-		config.WithCredentialsProvider(NewCustomCredentials(accessKeyID, secretAccessKey)),
+		config.WithRegion(c.Region()),
+		config.WithBaseEndpoint(c.Address()),
+		config.WithCredentialsProvider(NewCustomCredentials(c.AccessKeyID(), c.SecretAccessKey())),
 	)
 
 	if err != nil {
