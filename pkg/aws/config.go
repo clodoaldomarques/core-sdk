@@ -16,7 +16,7 @@ func NewCustomConfig(ctx context.Context, c Config) (aws.Config, error) {
 	)
 
 	if err != nil {
-		return aws.Config{}, fmt.Errorf("falha ao carregar configuração AWS: %w", err)
+		return aws.Config{}, fmt.Errorf("fail on loading AWS configurations: %w", err)
 	}
 
 	return cfg, nil
