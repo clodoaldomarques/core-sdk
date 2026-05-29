@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/aws/aws-sdk-go-v2/service/sns"
-	"github.com/clodoaldomarques/core-sdk/pkg/aws"
 	"github.com/clodoaldomarques/core-sdk/pkg/logger"
 )
 
@@ -14,11 +13,11 @@ type Publisher struct {
 	topicARN string
 }
 
-func NewPublisher(ctx context.Context, c aws.Config, t string) *Publisher {
+func NewPublisher(ctx context.Context, c Config) *Publisher {
 	return &Publisher{
 		ctx:      ctx,
 		svc:      NewSNSClient(ctx, c),
-		topicARN: t,
+		topicARN: c.TopicARN(),
 	}
 }
 
