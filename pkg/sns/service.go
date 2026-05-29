@@ -21,7 +21,7 @@ func NewPublisher(ctx context.Context, c Config) *Publisher {
 	}
 }
 
-func (p Publisher) Emit(ctx context.Context, e Event) {
+func (p Publisher) Emit(ctx context.Context, e Event) error {
 	input := &sns.PublishInput{
 		Message:  e.ToMessage(),
 		TopicArn: &p.topicARN,
@@ -29,12 +29,12 @@ func (p Publisher) Emit(ctx context.Context, e Event) {
 
 	result, err := p.svc.Publish(ctx, input)
 	if err != nil {
-		logger.Error(ctx, "error on publish", logger.Fields{
-			"error": err.Error(),
-		})
+		return err
 	}
+
 	logger.Info(ctx, "event published with success", logger.Fields{
 		"message_id": result.MessageId,
 		"event":      e,
 	})
+	return nil
 }
