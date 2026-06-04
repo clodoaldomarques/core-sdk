@@ -3,7 +3,9 @@ package tracer
 import (
 	"context"
 	"encoding/json"
+	"sync"
 
+	"github.com/clodoaldomarques/core-sdk/pkg/env"
 	"github.com/clodoaldomarques/core-sdk/pkg/logger"
 	"github.com/clodoaldomarques/core-sdk/pkg/request"
 	"go.opentelemetry.io/otel"
@@ -18,6 +20,17 @@ const (
 	TraceID = "TraceID"
 	Caller  = "Caller"
 )
+
+var (
+	once       sync.Once
+	OtlService string
+)
+
+func init() {
+	once.Do(func() {
+		OtlService = env.GetString(env.OTEL_SERVICE_NAME, "")
+	})
+}
 
 type TraceSpan struct {
 	s      trace.Span
@@ -99,10 +112,11 @@ func buildKeyValue(a Attributes) []attribute.KeyValue {
 	return values
 }
 
-func NewSpanFromContext(ctx context.Context, api, spanName string, attributes ...attribute.KeyValue) (*TraceSpan, context.Context) {
+func NewSpanFromContext(ctx context.Context, spanName string, attributes ...attribute.KeyValue) (*TraceSpan, context.Context) {
 	if spanName == "" {
 		panic("spanName is required")
 	}
+
 	rc := request.GetRequestContext(ctx)
 	cid := rc.Cid
 	orgID := rc.OrgID
@@ -112,7 +126,7 @@ func NewSpanFromContext(ctx context.Context, api, spanName string, attributes ..
 		attribute.String(OrgID, orgID),
 	}
 	attributes = append(attributes, attrs...)
-	ctx, span := otel.Tracer(api).Start(
+	ctx, span := otel.Tracer(OtlService).Start(
 		ctx,
 		spanName,
 		trace.WithAttributes(attributes...),

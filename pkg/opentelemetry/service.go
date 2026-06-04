@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/clodoaldomarques/core-sdk/pkg/env"
+	"github.com/clodoaldomarques/core-sdk/pkg/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
@@ -21,7 +22,7 @@ var (
 
 func init() {
 	once.Do(func() {
-		OtlpUrl = env.GetString(env.OTEL_URL, "")
+		OtlpUrl = env.GetString(env.OTEL_EXPORTER_ENDPOINT, "")
 	})
 }
 
@@ -59,4 +60,23 @@ func InitMeter(ctx context.Context) *metric.MeterProvider {
 		metric.WithReader(metric.NewPeriodicReader(metricExporter, metric.WithTimeout(2*time.Second))),
 	)
 	return meterProvider
+}
+
+func Start(ctx context.Context) {
+	tracerProvicer := InitTracer(ctx)
+	defer func() {
+		if err := tracerProvicer.Shutdown(ctx); err != nil {
+			logger.Error(ctx, "error shutdown trace provider", logger.Fields{"error": err.Error()})
+		}
+	}()
+
+	meterProvicer := InitMeter(ctx)
+	defer func() {
+		if err := meterProvicer.Shutdown(ctx); err != nil {
+			logger.Error(ctx, "error shutdonw meter provider", logger.Fields{"error": err.Error()})
+		}
+	}()
+
+	otel.SetTracerProvider(tracerProvicer)
+	otel.SetMeterProvider(meterProvicer)
 }

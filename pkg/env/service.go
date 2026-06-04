@@ -6,7 +6,8 @@ import (
 )
 
 const (
-	OTEL_URL string = "OTEL_EXPORTER_URL"
+	OTEL_EXPORTER_ENDPOINT string = "OTEL_EXPORTER_OTLP_ENDPOINT"
+	OTEL_SERVICE_NAME      string = "OTEL_SERVICE_NAME"
 )
 
 func GetString(env string, def string) string {
