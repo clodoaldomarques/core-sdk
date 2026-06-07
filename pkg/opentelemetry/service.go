@@ -80,3 +80,24 @@ func Start(ctx context.Context) {
 	otel.SetTracerProvider(tracerProvicer)
 	otel.SetMeterProvider(meterProvicer)
 }
+
+func Shutdown(ctx context.Context) {
+	tp := otel.GetTracerProvider()
+	if tp, ok := tp.(*trace.TracerProvider); ok {
+		if err := tp.Shutdown(ctx); err != nil {
+			logger.Error(ctx, "Erro no shutdown do TracerProvider", logger.Fields{
+				"error": err.Error(),
+			})
+		}
+	}
+
+	mp := otel.GetMeterProvider()
+	if mp, ok := mp.(*metric.MeterProvider); ok {
+		if err := mp.Shutdown(ctx); err != nil {
+			logger.Error(ctx, "Erro no shutdown do MeterProvider", logger.Fields{
+				"error": err.Error(),
+			})
+		}
+	}
+
+}
