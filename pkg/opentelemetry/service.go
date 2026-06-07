@@ -81,13 +81,14 @@ func Start(ctx context.Context) {
 	otel.SetMeterProvider(meterProvicer)
 }
 
-func Shutdown(ctx context.Context) {
+func Shutdown(ctx context.Context) error {
 	tp := otel.GetTracerProvider()
 	if tp, ok := tp.(*trace.TracerProvider); ok {
 		if err := tp.Shutdown(ctx); err != nil {
 			logger.Error(ctx, "Erro no shutdown do TracerProvider", logger.Fields{
 				"error": err.Error(),
 			})
+			return err
 		}
 	}
 
@@ -97,7 +98,9 @@ func Shutdown(ctx context.Context) {
 			logger.Error(ctx, "Erro no shutdown do MeterProvider", logger.Fields{
 				"error": err.Error(),
 			})
+			return err
 		}
 	}
 
+	return nil
 }
