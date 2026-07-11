@@ -11,7 +11,7 @@ type Type string
 
 type Event struct {
 	EventID   uuid.UUID `json:"event_id"`
-	EventType string    `json:"event_type`
+	EventType string    `json:"event_type"`
 	EventData any       `json:"event_data"`
 	EventDate time.Time `json:"event_date"`
 }
