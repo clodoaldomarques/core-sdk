@@ -35,3 +35,7 @@ func NewCustomCredentials(accessKeyID, secretAccessKey string) aws.CredentialsPr
 		return creds, nil
 	}))
 }
+
+func ParseAWSString(s string) *string {
+	return aws.String(s)
+}

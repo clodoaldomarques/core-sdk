@@ -3,11 +3,10 @@ package tracer
 import (
 	"context"
 	"encoding/json"
-	"sync"
 
+	"github.com/clodoaldomarques/core-sdk/internal/request"
 	"github.com/clodoaldomarques/core-sdk/pkg/env"
 	"github.com/clodoaldomarques/core-sdk/pkg/logger"
-	"github.com/clodoaldomarques/core-sdk/pkg/request"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -22,14 +21,11 @@ const (
 )
 
 var (
-	once       sync.Once
 	OtlService string
 )
 
 func init() {
-	once.Do(func() {
-		OtlService = env.GetString(env.OTEL_SERVICE_NAME, "")
-	})
+	OtlService = env.GetString(env.OTEL_SERVICE_NAME, "")
 }
 
 type TraceSpan struct {

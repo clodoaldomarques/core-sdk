@@ -2,7 +2,6 @@ package opentelemetry
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"github.com/clodoaldomarques/core-sdk/pkg/env"
@@ -16,14 +15,11 @@ import (
 )
 
 var (
-	once    sync.Once
 	OtlpUrl string
 )
 
 func init() {
-	once.Do(func() {
-		OtlpUrl = env.GetString(env.OTEL_EXPORTER_ENDPOINT, "")
-	})
+	OtlpUrl = env.GetString(env.OTEL_EXPORTER_ENDPOINT, "")
 }
 
 func InitTracer(ctx context.Context) *trace.TracerProvider {

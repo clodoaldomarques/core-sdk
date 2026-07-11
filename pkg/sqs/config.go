@@ -1,14 +1,14 @@
-package sns
+package sqs
 
 import (
 	"context"
 
-	"github.com/aws/aws-sdk-go-v2/service/sns"
+	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/clodoaldomarques/core-sdk/internal/aws"
 	"github.com/clodoaldomarques/core-sdk/pkg/logger"
 )
 
-func NewSNSClient(ctx context.Context, c aws.Config) *sns.Client {
+func NewSQSClient(ctx context.Context, c aws.Config) *sqs.Client {
 	cfg, err := aws.NewCustomConfig(ctx, c)
 	if err != nil {
 		logger.Fatal(ctx, "fail on loading settings", logger.Fields{
@@ -17,5 +17,5 @@ func NewSNSClient(ctx context.Context, c aws.Config) *sns.Client {
 			"AwsAddress": cfg.BaseEndpoint,
 		})
 	}
-	return sns.NewFromConfig(cfg)
+	return sqs.NewFromConfig(cfg)
 }
