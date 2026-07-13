@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
-	"github.com/clodoaldomarques/core-sdk/internal/aws"
+	"github.com/clodoaldomarques/core-sdk/pkg/aws"
 	"github.com/clodoaldomarques/core-sdk/pkg/logger"
 )
 
