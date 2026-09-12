@@ -1,6 +1,9 @@
 package request
 
-import "context"
+import (
+	"context"
+	"net/http"
+)
 
 const (
 	HeaderXCid    = "x-cid"
@@ -17,8 +20,16 @@ type Context struct {
 	OrgID         string
 	Cid           string
 	Caller        string
-	TraceID       string
 	CustomHeaders map[string]any
+}
+
+func NewContext(ctx context.Context, h http.Header, customHeaders map[string]any) context.Context {
+	return context.WithValue(ctx, ContextName, Context{
+		OrgID:         h.Get(HeaderXTenant),
+		Cid:           h.Get(HeaderXCid),
+		Caller:        h.Get(HeaderXCaller),
+		CustomHeaders: customHeaders,
+	})
 }
 
 func GetRequestContext(ctx context.Context) Context {
