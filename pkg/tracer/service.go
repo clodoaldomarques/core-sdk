@@ -14,10 +14,10 @@ import (
 )
 
 const (
-	Cid     = "Cid"
-	OrgID   = "OrgID"
-	TraceID = "TraceID"
-	Caller  = "Caller"
+	Cid     = "cid"
+	OrgID   = "org_id"
+	TraceID = "trace_id"
+	Caller  = "caller"
 )
 
 var (
@@ -36,13 +36,11 @@ type TraceSpan struct {
 	hasErr bool
 }
 
-type Attributes map[string]any
-
-func (t *TraceSpan) AddAttributes(a Attributes) {
+func (t *TraceSpan) AddAttributes(a map[string]any) {
 	t.s.SetAttributes(buildKeyValue(a)...)
 }
 
-func (t *TraceSpan) AddEvent(n string, a Attributes) {
+func (t *TraceSpan) AddEvent(n string, a map[string]any) {
 	t.s.AddEvent(n, trace.WithAttributes(buildKeyValue(a)...))
 }
 
@@ -60,9 +58,9 @@ func (t *TraceSpan) TraceID() string {
 	return t.s.SpanContext().TraceID().String()
 }
 
-func (t *TraceSpan) AddEventAndLog(m string, a Attributes) {
+func (t *TraceSpan) AddEventAndLog(m string, a map[string]any) {
 	if a == nil {
-		a = make(Attributes, 4)
+		a = make(map[string]any, 4)
 	}
 
 	a["Cid"] = t.cid
@@ -81,7 +79,7 @@ func (t *TraceSpan) End() {
 	t.s.End()
 }
 
-func buildKeyValue(a Attributes) []attribute.KeyValue {
+func buildKeyValue(a map[string]any) []attribute.KeyValue {
 	values := make([]attribute.KeyValue, 0, len(a))
 	for k, v := range a {
 		switch t := v.(type) {
@@ -108,7 +106,7 @@ func buildKeyValue(a Attributes) []attribute.KeyValue {
 	return values
 }
 
-func NewSpanFromContext(ctx context.Context, spanName string, attributes ...attribute.KeyValue) (*TraceSpan, context.Context) {
+func NewSpanFromContext(ctx context.Context, spanName string, attributes map[string]any) (*TraceSpan, context.Context) {
 	if spanName == "" {
 		panic("spanName is required")
 	}
@@ -117,15 +115,13 @@ func NewSpanFromContext(ctx context.Context, spanName string, attributes ...attr
 	cid := rc.Cid
 	orgID := rc.OrgID
 
-	attrs := []attribute.KeyValue{
-		attribute.String(Cid, cid),
-		attribute.String(OrgID, orgID),
-	}
-	attributes = append(attributes, attrs...)
+	attributes[Cid] = cid
+	attributes[OrgID] = orgID
+
 	ctx, span := otel.Tracer(OtlService).Start(
 		ctx,
 		spanName,
-		trace.WithAttributes(attributes...),
+		trace.WithAttributes(buildKeyValue(attributes)...),
 	)
 	span.SetStatus(codes.Ok, spanName)
 	return &TraceSpan{
