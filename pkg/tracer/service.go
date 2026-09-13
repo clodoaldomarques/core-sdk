@@ -31,8 +31,6 @@ func init() {
 type TraceSpan struct {
 	s      trace.Span
 	ctx    context.Context
-	cid    string
-	orgId  string
 	hasErr bool
 }
 
@@ -63,10 +61,8 @@ func (t *TraceSpan) AddEventAndLog(m string, a map[string]any) {
 		a = make(map[string]any, 4)
 	}
 
-	a["Cid"] = t.cid
-	a["OrgID"] = t.orgId
-	a["TraceID"] = t.TraceID()
-	a["SpanID"] = t.SpanID()
+	a["trace_id"] = t.TraceID()
+	a["span_id"] = t.SpanID()
 
 	t.AddEvent(m, a)
 	logger.Info(t.ctx, m, logger.Fields(a))
@@ -111,12 +107,13 @@ func NewSpanFromContext(ctx context.Context, spanName string, attributes map[str
 		panic("spanName is required")
 	}
 
-	rc := request.GetRequestContext(ctx)
-	cid := rc.Cid
-	orgID := rc.OrgID
+	if rc := request.GetRequestContext(ctx); rc.OrgID != "" && rc.Cid != "" {
+		cid := rc.Cid
+		orgID := rc.OrgID
 
-	attributes[Cid] = cid
-	attributes[OrgID] = orgID
+		attributes[Cid] = cid
+		attributes[OrgID] = orgID
+	}
 
 	ctx, span := otel.Tracer(OtlService).Start(
 		ctx,
@@ -125,9 +122,7 @@ func NewSpanFromContext(ctx context.Context, spanName string, attributes map[str
 	)
 	span.SetStatus(codes.Ok, spanName)
 	return &TraceSpan{
-		s:     span,
-		ctx:   ctx,
-		cid:   cid,
-		orgId: orgID,
+		s:   span,
+		ctx: ctx,
 	}, ctx
 }
