@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/aws/aws-sdk-go-v2/service/sns"
-	"github.com/clodoaldomarques/core-sdk/pkg/opentelemetry/logger"
+	"github.com/clodoaldomarques/core-sdk/pkg/otel/logger"
 )
 
 type Publisher struct {
