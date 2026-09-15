@@ -8,6 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sns v1.42.6
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.46.6
 	github.com/expr-lang/expr v1.17.8
+	github.com/go-logr/logr v1.4.4
 	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.15.4
 	github.com/shopspring/decimal v1.4.0
@@ -39,7 +40,6 @@ require (
 	github.com/aws/smithy-go v1.27.8 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0 // indirect
 	github.com/labstack/gommon v0.5.0 // indirect
