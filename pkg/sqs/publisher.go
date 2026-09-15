@@ -6,7 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
-	"github.com/clodoaldomarques/core-sdk/pkg/logger"
+	"github.com/clodoaldomarques/core-sdk/pkg/opentelemetry/logger"
 )
 
 type Publisher struct {

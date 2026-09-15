@@ -5,7 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/clodoaldomarques/core-sdk/pkg/aws"
-	"github.com/clodoaldomarques/core-sdk/pkg/logger"
+	"github.com/clodoaldomarques/core-sdk/pkg/opentelemetry/logger"
 )
 
 func NewSNSClient(ctx context.Context, c aws.Config) *sns.Client {
