@@ -6,7 +6,6 @@ import (
 
 	"github.com/clodoaldomarques/core-sdk/internal/request"
 	"github.com/clodoaldomarques/core-sdk/pkg/env"
-	"github.com/clodoaldomarques/core-sdk/pkg/opentelemetry/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -54,18 +53,6 @@ func (t *TraceSpan) SpanID() string {
 
 func (t *TraceSpan) TraceID() string {
 	return t.s.SpanContext().TraceID().String()
-}
-
-func (t *TraceSpan) AddEventAndLog(m string, a map[string]any) {
-	if a == nil {
-		a = make(map[string]any, 4)
-	}
-
-	a["trace_id"] = t.TraceID()
-	a["span_id"] = t.SpanID()
-
-	t.AddEvent(m, a)
-	logger.Info(t.ctx, m, logger.Fields(a))
 }
 
 func (t *TraceSpan) End() {

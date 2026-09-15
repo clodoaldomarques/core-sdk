@@ -8,11 +8,11 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric"
 )
 
-func InitMeter(ctx context.Context) *metric.MeterProvider {
+func InitMeter(ctx context.Context, otlpUrl string) *metric.MeterProvider {
 	metricExporter, err := otlpmetricgrpc.New(
 		ctx,
 		otlpmetricgrpc.WithInsecure(),
-		otlpmetricgrpc.WithEndpoint(OtlpUrl),
+		otlpmetricgrpc.WithEndpoint(otlpUrl),
 	)
 
 	if err != nil {
