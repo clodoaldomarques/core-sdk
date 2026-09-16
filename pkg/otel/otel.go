@@ -7,19 +7,13 @@ import (
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/logger"
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/meter"
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/tracer"
-	"github.com/go-logr/logr"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/sdk/log"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 var (
 	OtlpUrl string
-	tp      *trace.TracerProvider
-	mp      *metric.MeterProvider
-	lp      *log.LoggerProvider
-	lg      logr.Logger
 )
 
 func init() {
@@ -27,35 +21,27 @@ func init() {
 }
 
 func Start(ctx context.Context) {
-	tp = tracer.InitTracer(ctx, OtlpUrl)
-	mp = meter.InitMeter(ctx, OtlpUrl)
-	lp, lg = logger.InitLogger(ctx, OtlpUrl)
-	otel.SetTracerProvider(tp)
-	otel.SetMeterProvider(mp)
-	otel.SetLogger(lg)
+	otel.SetTracerProvider(tracer.InitTracer(ctx, OtlpUrl))
+	otel.SetMeterProvider(meter.InitMeter(ctx, OtlpUrl))
 }
 
 func Shutdown(ctx context.Context) error {
-	if err := tp.Shutdown(ctx); err != nil {
-		logger.Error(ctx, "Erro no shutdown do TracerProvider", logger.Fields{
-			"error": err.Error(),
-		})
-		return err
+	if tp := otel.GetTracerProvider().(*trace.TracerProvider); tp != nil {
+		if err := tp.Shutdown(ctx); err != nil {
+			logger.Error(ctx, "Erro no shutdown do TracerProvider", logger.Fields{
+				"error": err.Error(),
+			})
+			return err
+		}
 	}
 
-	if err := mp.Shutdown(ctx); err != nil {
-		logger.Error(ctx, "Erro no shutdown do MeterProvider", logger.Fields{
-			"error": err.Error(),
-		})
-		return err
+	if mp := otel.GetMeterProvider().(*metric.MeterProvider); mp != nil {
+		if err := mp.Shutdown(ctx); err != nil {
+			logger.Error(ctx, "Erro no shutdown do MeterProvider", logger.Fields{
+				"error": err.Error(),
+			})
+			return err
+		}
 	}
-
-	if err := lp.Shutdown(ctx); err != nil {
-		logger.Error(ctx, "Erro no shutdown do LoggerProvider", logger.Fields{
-			"error": err.Error(),
-		})
-		return err
-	}
-
 	return nil
 }
