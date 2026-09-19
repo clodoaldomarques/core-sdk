@@ -1,11 +1,10 @@
 package httpclient
 
 import (
-	"context"
 	"net/http"
 )
 
-func Client(ctx context.Context) *http.Client {
+func Client() *http.Client {
 	return &http.Client{
 		Transport: &Transport{
 			Base: http.DefaultTransport,
