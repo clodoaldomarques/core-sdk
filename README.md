@@ -29,18 +29,19 @@ core-sdk/
 ├── internal/
 │   └── request/
 │       └── service.go
-│
 ├── pkg/
 │   ├── aws/
+|   │    ├── sns/
+│   |    └── sqs/
 │   ├── commons/
 │   ├── env/
 │   ├── expression/
 │   ├── logger/
-│   ├── opentelemetry/
-│   ├── sns/
-│   ├── sqs/
-│   └── tracer/
-│
+│   ├── otel/
+│   |    ├── logger/
+│   |    ├── meter/
+│   |    └── tracer/ 
+│   └── zap/
 ├── go.mod
 └── go.sum
 ```

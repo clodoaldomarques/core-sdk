@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/clodoaldomarques/core-sdk/pkg/env"
-	"github.com/clodoaldomarques/core-sdk/pkg/otel/logger"
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/meter"
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/tracer"
+	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/trace"
