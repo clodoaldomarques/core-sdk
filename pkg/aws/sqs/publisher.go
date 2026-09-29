@@ -67,3 +67,17 @@ func (p *Publisher) SendBatch(ctx context.Context, entries []types.SendMessageBa
 	})
 	return result.Successful, nil
 }
+
+func (p *Publisher) Health(ctx context.Context) error {
+	_, err := p.svc.GetQueueAttributes(
+		ctx,
+		&sqs.GetQueueAttributesInput{
+			QueueUrl: &p.queueURL,
+			AttributeNames: []types.QueueAttributeName{
+				types.QueueAttributeNameQueueArn,
+			},
+		},
+	)
+
+	return err
+}

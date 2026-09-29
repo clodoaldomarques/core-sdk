@@ -3,6 +3,7 @@ package sns
 import (
 	"context"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
 )
@@ -37,4 +38,10 @@ func (p Publisher) Emit(ctx context.Context, e Event) error {
 		"event":      e,
 	})
 	return nil
+}
+
+func (p Publisher) Health(ctx context.Context) error {
+	_, err := p.svc.GetTopicAttributes(ctx, &sns.GetTopicAttributesInput{TopicArn: aws.String(p.topicARN)})
+
+	return err
 }
