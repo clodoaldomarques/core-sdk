@@ -11,17 +11,18 @@ import (
 
 // Configuração opcional
 type InterceptorConfig struct {
-	MaxBodySize     int64    // bytes máximos a serem lidos para log (0 = ilimitado, cuidado!)
-	RedactFields    []string // campos a ocultar no body (ex.: "password", "token")
+	MaxBodySize     int64
 	LogRequestBody  bool
 	LogResponseBody bool
 	LogHeaders      bool
+	RedactFields    []string
+	SkipPaths       []string
 }
 
 var defaultConfig = InterceptorConfig{
-	MaxBodySize:     10 * 1024, // 10KB
+	MaxBodySize:     10 * 1024,
 	LogRequestBody:  true,
-	LogResponseBody: false, // geralmente desligado por segurança/performance
+	LogResponseBody: false,
 	LogHeaders:      false,
 }
 
@@ -36,6 +37,10 @@ func InterceptorWithConfig(cfg InterceptorConfig) echo.MiddlewareFunc {
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			if shouldSkipPath(c.Path(), cfg.SkipPaths) {
+				return next(c)
+			}
+
 			start := time.Now()
 			req := c.Request()
 			ctx := req.Context()
@@ -118,6 +123,16 @@ func InterceptorWithConfig(cfg InterceptorConfig) echo.MiddlewareFunc {
 			return err
 		}
 	}
+}
+
+func shouldSkipPath(path string, skipPaths []string) bool {
+	for _, skipPath := range skipPaths {
+		if path == skipPath {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Lê até N bytes do corpo, respeitando limite
