@@ -261,9 +261,9 @@ func (c *Consumer) deleteMessage(ctx context.Context, receiptHandle *string) err
 	return err
 }
 
-func (c *Consumer) Health(ctx context.Context) error {
+func (c *Consumer) Health() error {
 	_, err := c.svc.GetQueueAttributes(
-		ctx,
+		c.ctx,
 		&sqs.GetQueueAttributesInput{
 			QueueUrl: &c.queueURL,
 			AttributeNames: []types.QueueAttributeName{

@@ -40,8 +40,7 @@ func (p Publisher) Emit(ctx context.Context, e Event) error {
 	return nil
 }
 
-func (p Publisher) Health(ctx context.Context) error {
-	_, err := p.svc.GetTopicAttributes(ctx, &sns.GetTopicAttributesInput{TopicArn: aws.String(p.topicARN)})
-
+func (p Publisher) Health() error {
+	_, err := p.svc.GetTopicAttributes(p.ctx, &sns.GetTopicAttributesInput{TopicArn: aws.String(p.topicARN)})
 	return err
 }
