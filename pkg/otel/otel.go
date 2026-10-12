@@ -2,11 +2,13 @@ package otel
 
 import (
 	"context"
+	"time"
 
 	"github.com/clodoaldomarques/core-sdk/pkg/env"
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/meter"
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/tracer"
 	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
+	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/trace"
@@ -21,8 +23,20 @@ func init() {
 }
 
 func Start(ctx context.Context) {
-	otel.SetTracerProvider(tracer.InitTracer(ctx, OtlpUrl))
-	otel.SetMeterProvider(meter.InitMeter(ctx, OtlpUrl))
+	tp := tracer.InitTracer(ctx, OtlpUrl)
+	otel.SetTracerProvider(tp)
+	mp := meter.InitMeter(ctx, OtlpUrl)
+	otel.SetMeterProvider(mp)
+
+	if err := runtime.Start(
+		runtime.WithMeterProvider(mp),
+		runtime.WithMinimumReadMemStatsInterval(15*time.Second),
+	); err != nil {
+		logger.Error(ctx, "Erro ao iniciar runtime metrics", logger.Fields{
+			"error": err.Error(),
+		})
+	}
+
 }
 
 func Shutdown(ctx context.Context) error {

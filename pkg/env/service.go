@@ -8,6 +8,8 @@ import (
 const (
 	OTEL_EXPORTER_ENDPOINT string = "OTEL_EXPORTER_OTLP_ENDPOINT"
 	OTEL_SERVICE_NAME      string = "OTEL_SERVICE_NAME"
+	OTEL_SERVICE_VERSION   string = "OTEL_SERVICE_VERSION"
+	ENV                    string = "ENV"
 )
 
 func GetString(env string, def string) string {
