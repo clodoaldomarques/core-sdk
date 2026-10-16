@@ -24,10 +24,15 @@ var defaultConfig = InterceptorConfig{
 	LogRequestBody:  true,
 	LogResponseBody: false,
 	LogHeaders:      false,
+	RedactFields:    []string{"password", "token", "credit_card"},
+	SkipPaths: []string{
+		"/health/live",
+		"/health/ready",
+	},
 }
 
-func Interceptor(next echo.HandlerFunc) echo.HandlerFunc {
-	return InterceptorWithConfig(defaultConfig)(next)
+func Interceptor() echo.MiddlewareFunc {
+	return InterceptorWithConfig(defaultConfig)
 }
 
 func InterceptorWithConfig(cfg InterceptorConfig) echo.MiddlewareFunc {

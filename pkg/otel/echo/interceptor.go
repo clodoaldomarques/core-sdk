@@ -8,18 +8,32 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
+type InterceptorConfig struct {
+	CountRequests  bool
+	CountResponses bool
+	SkipPaths      []string
+}
+
+var defaultConfig = InterceptorConfig{
+	CountRequests:  true,
+	CountResponses: true,
+	SkipPaths: []string{
+		"/health/live",
+		"/health/ready",
+	},
+}
+
 var (
 	meterName = env.GetString(env.OTEL_SERVICE_NAME, "unknown-service")
 )
 
-// Middleware retorna um middleware customizado do Echo que registra
-// contadores de requisições e respostas usando OpenTelemetry.
 func Interceptor() echo.MiddlewareFunc {
-	// Obtém o Meter do provider global (que sua SDK já configurou).
+	return InterceptorWithConfig(defaultConfig)
+}
+
+func InterceptorWithConfig(config InterceptorConfig) echo.MiddlewareFunc {
 	meter := otel.GetMeterProvider().Meter(meterName)
 
-	// Cria os contadores.
-	// O nome segue a convenção semântica do OTel (sufixo _total para contadores).
 	requestsTotal, _ := meter.Int64Counter(
 		"http.server.requests.total",
 		metric.WithDescription("Total de requisições HTTP recebidas."),
@@ -34,22 +48,25 @@ func Interceptor() echo.MiddlewareFunc {
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			// Atributos comuns a serem usados em ambas as métricas.
-			// Extraia o path da rota para evitar alta cardinalidade.
-			// Use c.Path() para obter o padrão da rota (ex: /users/:id).
+			if shouldSkipPath(c.Path(), config.SkipPaths) {
+				return next(c)
+			}
+
 			attrs := []attribute.KeyValue{
 				attribute.String("http.request.method", c.Request().Method),
 				attribute.String("url.path", c.Path()),
 			}
 
-			// 1. Registra a requisição (antes de chamar o handler).
-			requestsTotal.Add(c.Request().Context(), 1, metric.WithAttributes(attrs...))
+			if config.CountRequests {
+				requestsTotal.Add(c.Request().Context(), 1, metric.WithAttributes(attrs...))
+			}
 
-			// Chama o próximo handler na cadeia.
+			if config.CountResponses {
+				responsesTotal.Add(c.Request().Context(), 1, metric.WithAttributes(attrs...))
+			}
+
 			err := next(c)
 
-			// 2. Registra a resposta (após o handler, com o status code).
-			// Adiciona o status code como um atributo.
 			responseAttrs := append(attrs,
 				attribute.Int("http.response.status_code", c.Response().Status),
 			)
@@ -58,4 +75,14 @@ func Interceptor() echo.MiddlewareFunc {
 			return err
 		}
 	}
+}
+
+func shouldSkipPath(path string, skipPaths []string) bool {
+	for _, skipPath := range skipPaths {
+		if path == skipPath {
+			return true
+		}
+	}
+
+	return false
 }
